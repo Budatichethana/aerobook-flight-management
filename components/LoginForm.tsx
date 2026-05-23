@@ -24,6 +24,7 @@ export default function LoginForm({ nextPath }: Props) {
   const [mode, setMode] = React.useState<'sign-in' | 'sign-up'>('sign-in')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
+  const [confirmPassword, setConfirmPassword] = React.useState('')
   const [loading, setLoading] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
   const [infoMessage, setInfoMessage] = React.useState<string | null>(null)
@@ -54,6 +55,16 @@ export default function LoginForm({ nextPath }: Props) {
     try {
       if (!email || !password) {
         throw new Error('Email and password are required.')
+      }
+
+      if (mode === 'sign-up') {
+        if (password.length < 6) {
+          throw new Error('Password must be at least 6 characters.')
+        }
+
+        if (password !== confirmPassword) {
+          throw new Error('Passwords do not match')
+        }
       }
 
       if (mode === 'sign-in') {
@@ -107,37 +118,38 @@ export default function LoginForm({ nextPath }: Props) {
         <div className="absolute bottom-[-7rem] left-1/3 h-80 w-80 rounded-full bg-indigo-200/30 blur-3xl" />
       </div>
 
-      <div className="relative z-10 mx-auto grid w-full max-w-5xl gap-3 lg:h-full lg:grid-cols-[1.02fr_0.98fr] lg:items-center xl:gap-5">
-        <div className="overflow-hidden rounded-[2rem] border border-white/60 bg-slate-950/90 p-5 text-white shadow-[0_30px_80px_rgba(15,23,42,0.28)] backdrop-blur lg:p-6">
-          <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-sky-100">
+      <div className="relative z-10 mx-auto grid w-full max-w-5xl gap-8 lg:h-full lg:grid-cols-[1.02fr_0.98fr] lg:items-center xl:gap-12">
+        <div className="max-w-xl space-y-6 px-1 text-slate-900 lg:pr-8">
+          <div className="inline-flex items-center gap-3 rounded-full border border-sky-200 bg-white/70 px-4 py-2 text-sm font-medium text-sky-700 shadow-sm backdrop-blur">
             <PlaneTakeoff className="h-4 w-4" />
             AeroBook Premium Access
           </div>
 
-          <div className="mt-3 max-w-lg space-y-2.5">
-            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-sky-200/80">Flight management, refined</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Book, cancel, and reschedule with a cockpit-level experience.
+          <div className="space-y-3">
+            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-sky-700/80">Flight management, refined</p>
+            <h1 className="max-w-lg text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+              Book, cancel, and reschedule with confidence.
             </h1>
-            <p className="max-w-md text-sm leading-6 text-slate-300 sm:text-base">
+            <p className="max-w-md text-sm leading-6 text-slate-600 sm:text-base">
               Use your account to book, cancel, and reschedule flights securely.
             </p>
           </div>
 
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:max-w-xl sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
             {[
               'Secure account access for every itinerary',
-              'Realtime seat changes across active flights'
+              'Realtime seat changes across active flights',
+              'Fast booking, reschedule, and cancellation updates'
             ].map((item) => (
-              <div key={item} className="flex items-start gap-2.5 rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-slate-200">
-                <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
+              <div key={item} className="flex items-start gap-2.5 rounded-2xl border border-white/60 bg-white/55 px-3 py-2.5 text-sm text-slate-700 shadow-sm backdrop-blur">
+                <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-600" />
                 <span>{item}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-xl rounded-[2rem] border border-slate-200/80 bg-white/90 p-4 shadow-[0_20px_70px_rgba(15,23,42,0.12)] backdrop-blur lg:p-6">
+        <div className="mx-auto w-full max-w-xl rounded-3xl border border-slate-200/80 bg-white/90 p-4 shadow-[0_20px_70px_rgba(15,23,42,0.12)] backdrop-blur lg:p-6">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">Account access</p>
@@ -174,7 +186,7 @@ export default function LoginForm({ nextPath }: Props) {
             </label>
 
             <label className="block space-y-2 text-sm font-medium text-slate-700">
-              <span>Password</span>
+              <span>{mode === 'sign-up' ? 'New password' : 'Password'}</span>
               <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
@@ -184,12 +196,32 @@ export default function LoginForm({ nextPath }: Props) {
                     setPassword(event.target.value)
                   }}
                   className="h-10 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100 lg:h-11"
-                  placeholder="Enter your password"
+                  placeholder={mode === 'sign-up' ? 'Enter your new password' : 'Enter your password'}
                   minLength={6}
                   required
                 />
               </div>
             </label>
+
+            {mode === 'sign-up' ? (
+              <label className="block space-y-2 text-sm font-medium text-slate-700">
+                <span>Confirm password</span>
+                <div className="relative">
+                  <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(event) => {
+                      setConfirmPassword(event.target.value)
+                    }}
+                    className="h-10 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100 lg:h-11"
+                    placeholder="Confirm your password"
+                    minLength={6}
+                    required
+                  />
+                </div>
+              </label>
+            ) : null}
 
             {errorMessage ? (
               <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -225,6 +257,9 @@ export default function LoginForm({ nextPath }: Props) {
                 <button
                   type="button"
                   onClick={() => {
+                    setErrorMessage(null)
+                    setInfoMessage(null)
+                    setConfirmPassword('')
                     setMode((current) => (current === 'sign-in' ? 'sign-up' : 'sign-in'))
                   }}
                   className="font-semibold text-sky-700 transition hover:text-sky-800"
