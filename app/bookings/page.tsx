@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { BadgeCheck, CalendarX2, Plane, RefreshCcw, ShieldAlert, ShieldCheck } from 'lucide-react'
 import CancelBookingButton from '../../components/CancelBookingButton'
+import TicketQr from '../../components/TicketQr'
 import { formatDateTime } from '../../lib/formatDateTime'
 import { createSupabaseServerClient } from '../../lib/supabase/server'
 
@@ -131,18 +132,23 @@ export default async function BookingsPage() {
                 'card transition',
                 isCancelled ? 'opacity-70 grayscale-[0.15]' : ''
               ].join(' ')}>
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-600">{booking.pnr_code}</p>
                     <h2 className="mt-2 text-xl font-semibold text-slate-900">
                       {flight?.origin ?? 'Unknown'} → {flight?.destination ?? 'Unknown'}
                     </h2>
                     <p className="mt-2 text-sm text-slate-500">Booked: {formatDateTime(booking.booked_at)}</p>
                   </div>
-                  <span className={['status-badge', getStatusClasses(booking.status)].join(' ')}>
-                    {booking.status === 'confirmed' ? <ShieldCheck className="h-4 w-4" /> : booking.status === 'rescheduled' ? <RefreshCcw className="h-4 w-4" /> : booking.status === 'cancelled' ? <ShieldAlert className="h-4 w-4" /> : <BadgeCheck className="h-4 w-4" />}
-                    {booking.status}
-                  </span>
+                  <div className="flex items-start justify-between gap-3 lg:flex-col lg:items-end lg:justify-start">
+                    <span className={['status-badge', getStatusClasses(booking.status)].join(' ')}>
+                      {booking.status === 'confirmed' ? <ShieldCheck className="h-4 w-4" /> : booking.status === 'rescheduled' ? <RefreshCcw className="h-4 w-4" /> : booking.status === 'cancelled' ? <ShieldAlert className="h-4 w-4" /> : <BadgeCheck className="h-4 w-4" />}
+                      {booking.status}
+                    </span>
+                    <div className="shrink-0 lg:mt-1">
+                      <TicketQr bookingId={booking.id} size={60} compact label="Scan ticket" targetPath="/ticket" />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-3">
