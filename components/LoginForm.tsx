@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import React from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   BadgeCheck,
@@ -11,104 +11,110 @@ import {
   PlaneTakeoff,
   Sparkles,
   Ticket,
-} from 'lucide-react'
-import { getSupabaseBrowserClient } from '../lib/supabase/client'
+} from "lucide-react";
+import { getSupabaseBrowserClient } from "../lib/supabase/client";
 
 type Props = {
-  nextPath: string
-}
+  nextPath: string;
+};
 
 export default function LoginForm({ nextPath }: Props) {
-  const router = useRouter()
-  const supabase = getSupabaseBrowserClient()
-  const [mode, setMode] = React.useState<'sign-in' | 'sign-up'>('sign-in')
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [confirmPassword, setConfirmPassword] = React.useState('')
-  const [loading, setLoading] = React.useState(false)
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
-  const [infoMessage, setInfoMessage] = React.useState<string | null>(null)
+  const router = useRouter();
+  const supabase = getSupabaseBrowserClient();
+  const [mode, setMode] = React.useState<"sign-in" | "sign-up">("sign-in");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    let mounted = true
+    let mounted = true;
 
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getUser()
+      const { data } = await supabase.auth.getUser();
       if (mounted && data.user) {
-        router.replace(nextPath)
+        router.replace(nextPath);
       }
-    }
+    };
 
-    void checkAuth()
+    void checkAuth();
 
     return () => {
-      mounted = false
-    }
-  }, [nextPath, router, supabase])
+      mounted = false;
+    };
+  }, [nextPath, router, supabase]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setLoading(true)
-    setErrorMessage(null)
-    setInfoMessage(null)
+    event.preventDefault();
+    setLoading(true);
+    setErrorMessage(null);
+    setInfoMessage(null);
+
+    const normalizedEmail = email.trim().toLowerCase();
 
     try {
-      if (!email || !password) {
-        throw new Error('Email and password are required.')
+      if (!normalizedEmail || !password) {
+        throw new Error("Email and password are required.");
       }
 
-      if (mode === 'sign-up') {
+      if (mode === "sign-up") {
         if (password.length < 6) {
-          throw new Error('Password must be at least 6 characters.')
+          throw new Error("Password must be at least 6 characters.");
         }
 
         if (password !== confirmPassword) {
-          throw new Error('Passwords do not match')
+          throw new Error("Passwords do not match");
         }
       }
 
-      if (mode === 'sign-in') {
+      if (mode === "sign-in") {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        })
+          email: normalizedEmail,
+          password,
+        });
 
         if (error) {
-          throw error
+          throw error;
         }
 
         if (!data.user) {
-          throw new Error('Sign in failed. Please try again.')
+          throw new Error("Sign in failed. Please try again.");
         }
 
-        router.replace(nextPath)
-        router.refresh()
-        return
+        router.replace(nextPath);
+        router.refresh();
+        return;
       }
 
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password
-      })
+        email: normalizedEmail,
+        password,
+      });
 
       if (error) {
-        throw error
+        throw error;
       }
 
       if (data.session) {
-        router.replace(nextPath)
-        router.refresh()
-        return
+        router.replace(nextPath);
+        router.refresh();
+        return;
       }
 
-      setInfoMessage('Account created. Please verify your email, then sign in.')
-      setMode('sign-in')
+      setInfoMessage(
+        "Account created. Please verify your email, then sign in.",
+      );
+      setMode("sign-in");
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Unable to continue')
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to continue",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <section className="relative min-h-[calc(100vh-88px)] overflow-auto bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.9),_rgba(219,234,254,0.45)_32%,_rgba(14,165,233,0.12)_62%,_rgba(15,23,42,0.04)_100%)] px-4 py-4 sm:px-6 sm:py-4 lg:h-[calc(100vh-88px)] lg:overflow-hidden lg:px-8 lg:py-4">
@@ -126,7 +132,9 @@ export default function LoginForm({ nextPath }: Props) {
           </div>
 
           <div className="space-y-3">
-            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-sky-700/80">Flight management, refined</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-sky-700/80">
+              Flight management, refined
+            </p>
             <h1 className="max-w-lg text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
               Book, cancel, and reschedule with confidence.
             </h1>
@@ -137,11 +145,14 @@ export default function LoginForm({ nextPath }: Props) {
 
           <div className="grid gap-2.5 sm:max-w-xl sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
             {[
-              'Secure account access for every itinerary',
-              'Realtime seat changes across active flights',
-              'Fast booking, reschedule, and cancellation updates'
+              "Secure account access for every itinerary",
+              "Realtime seat changes across active flights",
+              "Fast booking, reschedule, and cancellation updates",
             ].map((item) => (
-              <div key={item} className="flex items-start gap-2.5 rounded-2xl border border-white/60 bg-white/55 px-3 py-2.5 text-sm text-slate-700 shadow-sm backdrop-blur">
+              <div
+                key={item}
+                className="flex items-start gap-2.5 rounded-2xl border border-white/60 bg-white/55 px-3 py-2.5 text-sm text-slate-700 shadow-sm backdrop-blur"
+              >
                 <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-600" />
                 <span>{item}</span>
               </div>
@@ -152,9 +163,13 @@ export default function LoginForm({ nextPath }: Props) {
         <div className="mx-auto w-full max-w-xl rounded-3xl border border-slate-200/80 bg-white/90 p-4 shadow-[0_20px_70px_rgba(15,23,42,0.12)] backdrop-blur lg:p-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">Account access</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">
+                Account access
+              </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-                {mode === 'sign-in' ? 'Sign in to AeroBook' : 'Create your AeroBook account'}
+                {mode === "sign-in"
+                  ? "Sign in to AeroBook"
+                  : "Create your AeroBook account"}
               </h2>
             </div>
 
@@ -164,7 +179,8 @@ export default function LoginForm({ nextPath }: Props) {
           </div>
 
           <p className="mt-1.5 text-sm leading-5 text-slate-600">
-            Sign in to continue booking. If you do not have an account yet, switch to sign up.
+            Sign in to continue booking. If you do not have an account yet,
+            switch to sign up.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-3 space-y-3">
@@ -176,7 +192,7 @@ export default function LoginForm({ nextPath }: Props) {
                   type="email"
                   value={email}
                   onChange={(event) => {
-                    setEmail(event.target.value)
+                    setEmail(event.target.value);
                   }}
                   className="h-10 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100 lg:h-11"
                   placeholder="name@company.com"
@@ -186,24 +202,28 @@ export default function LoginForm({ nextPath }: Props) {
             </label>
 
             <label className="block space-y-2 text-sm font-medium text-slate-700">
-              <span>{mode === 'sign-up' ? 'New password' : 'Password'}</span>
+              <span>{mode === "sign-up" ? "New password" : "Password"}</span>
               <div className="relative">
                 <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="password"
                   value={password}
                   onChange={(event) => {
-                    setPassword(event.target.value)
+                    setPassword(event.target.value);
                   }}
                   className="h-10 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100 lg:h-11"
-                  placeholder={mode === 'sign-up' ? 'Enter your new password' : 'Enter your password'}
+                  placeholder={
+                    mode === "sign-up"
+                      ? "Enter your new password"
+                      : "Enter your password"
+                  }
                   minLength={6}
                   required
                 />
               </div>
             </label>
 
-            {mode === 'sign-up' ? (
+            {mode === "sign-up" ? (
               <label className="block space-y-2 text-sm font-medium text-slate-700">
                 <span>Confirm password</span>
                 <div className="relative">
@@ -212,7 +232,7 @@ export default function LoginForm({ nextPath }: Props) {
                     type="password"
                     value={confirmPassword}
                     onChange={(event) => {
-                      setConfirmPassword(event.target.value)
+                      setConfirmPassword(event.target.value);
                     }}
                     className="h-10 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100 lg:h-11"
                     placeholder="Confirm your password"
@@ -241,10 +261,10 @@ export default function LoginForm({ nextPath }: Props) {
               className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-600 via-cyan-600 to-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-200 transition duration-200 hover:-translate-y-0.5 hover:from-sky-500 hover:via-cyan-500 hover:to-indigo-500 hover:shadow-xl hover:shadow-sky-300 disabled:cursor-not-allowed disabled:translate-y-0 disabled:bg-slate-300 disabled:bg-none disabled:shadow-none"
             >
               {loading
-                ? 'Please wait...'
-                : mode === 'sign-in'
-                  ? 'Sign in'
-                  : 'Sign up'}
+                ? "Please wait..."
+                : mode === "sign-in"
+                  ? "Sign in"
+                  : "Sign up"}
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </button>
           </form>
@@ -253,18 +273,22 @@ export default function LoginForm({ nextPath }: Props) {
             <div className="flex items-start gap-2.5">
               <Ticket className="mt-0.5 h-4 w-4 shrink-0 text-sky-600" />
               <p>
-                {mode === 'sign-in' ? 'Need an account?' : 'Already have an account?'}{' '}
+                {mode === "sign-in"
+                  ? "Need an account?"
+                  : "Already have an account?"}{" "}
                 <button
                   type="button"
                   onClick={() => {
-                    setErrorMessage(null)
-                    setInfoMessage(null)
-                    setConfirmPassword('')
-                    setMode((current) => (current === 'sign-in' ? 'sign-up' : 'sign-in'))
+                    setErrorMessage(null);
+                    setInfoMessage(null);
+                    setConfirmPassword("");
+                    setMode((current) =>
+                      current === "sign-in" ? "sign-up" : "sign-in",
+                    );
                   }}
                   className="font-semibold text-sky-700 transition hover:text-sky-800"
                 >
-                  {mode === 'sign-in' ? 'Sign up' : 'Sign in'}
+                  {mode === "sign-in" ? "Sign up" : "Sign in"}
                 </button>
                 .
               </p>
@@ -275,10 +299,12 @@ export default function LoginForm({ nextPath }: Props) {
             <Link href="/" className="transition hover:text-slate-700">
               Back to home
             </Link>
-            <span className="hidden sm:inline">AeroBook secure travel access</span>
+            <span className="hidden sm:inline">
+              AeroBook secure travel access
+            </span>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
